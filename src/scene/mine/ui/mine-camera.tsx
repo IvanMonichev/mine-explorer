@@ -35,7 +35,7 @@ export const MineCamera = observer(
       data: MineSceneData
       focusRequest: ViewerStore['focusRequest']
     } | null>(null)
-    const { camera, invalidate, raycaster, size } = useThree()
+    const { camera, invalidate, size } = useThree()
     const focusRequest = viewerStore.focusRequest
     const directionRequest = viewerStore.cameraDirectionRequest
     const sceneRadius = Math.max(
@@ -222,14 +222,6 @@ export const MineCamera = observer(
         camera.near = near
         camera.updateProjectionMatrix()
       }
-      // Допуск выбора линии примерно в четыре пикселя при текущем масштабе.
-      raycaster.params.Line.threshold = Math.max(
-        (8 *
-          distance *
-          Math.tan(MathUtils.degToRad(camera.getEffectiveFOV()) / 2)) /
-          Math.max(size.height, 1),
-        0.00001
-      )
     })
 
     return (

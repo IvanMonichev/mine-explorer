@@ -1,6 +1,7 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 
 import { Canvas } from '@react-three/fiber'
+import { CylinderGeometry } from 'three'
 
 import type { Mine } from '@/domain/mine'
 import { InfoLayout } from '@/shared/components/info-layout'
@@ -8,12 +9,12 @@ import type { ViewerStore } from '@/store/viewer'
 
 import { buildSceneData } from '../lib/build-scene-data'
 
-import { HorizonLines } from './horizon-lines'
+import { HorizonInstances } from './horizon-instances'
 import { MineCamera } from './mine-camera'
 import styles from './mine-scene.module.css'
 import { SceneErrorBoundary } from './scene-error-boundary'
 import { SceneHelpers } from './scene-helpers'
-import { SelectionLines } from './selection-lines'
+import { SelectionInstances } from './selection-instances'
 
 interface MineSceneProps {
   mine: Mine
@@ -22,6 +23,9 @@ interface MineSceneProps {
 
 export const MineScene = ({ mine, viewerStore }: MineSceneProps) => {
   const data = useMemo(() => buildSceneData(mine), [mine])
+  const geometry = useMemo(() => new CylinderGeometry(1, 1, 1, 8), [])
+
+  useEffect(() => () => geometry.dispose(), [geometry])
 
   return (
     <SceneErrorBoundary>
@@ -42,14 +46,18 @@ export const MineScene = ({ mine, viewerStore }: MineSceneProps) => {
           onPointerMissed={() => viewerStore.select(null)}
         >
           <color args={['#f8fafc']} attach='background' />
+          <ambientLight intensity={0.8} />
+          <directionalLight intensity={1.5} position={[1, 2, 3]} />
           {data.batches.map((batch) => (
-            <HorizonLines
+            <HorizonInstances
               batch={batch}
+              geometry={geometry}
               key={batch.horizonId}
               viewerStore={viewerStore}
             />
           ))}
-          <SelectionLines
+          <SelectionInstances
+            geometry={geometry}
             mine={mine}
             origin={data.origin}
             viewerStore={viewerStore}

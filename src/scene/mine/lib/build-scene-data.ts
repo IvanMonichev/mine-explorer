@@ -1,4 +1,4 @@
-import { Box3, Vector3 } from 'three'
+import { Box3, Matrix4, Quaternion, Vector3 } from 'three'
 
 import type { Mine, SelectedEntityRef } from '@/domain/mine'
 import {
@@ -11,6 +11,11 @@ import type { Position3D } from '@/shared/types/position-3d'
 
 import type { MineSceneData } from '../model/mine-scene-data'
 
+const SECTION_THICKNESS_SCALE = 0.25
+
+const getSectionRadius = (section: Section) =>
+  (section.thickness * SECTION_THICKNESS_SCALE) / 2
+
 export const toScenePosition = (position: Position3D, origin: Position3D) =>
   new Vector3(
     position.x - origin.x,
@@ -18,22 +23,65 @@ export const toScenePosition = (position: Position3D, origin: Position3D) =>
     origin.y - position.y
   )
 
-export const buildSectionPositions = (
+export const buildSectionMatrices = (
   mine: Mine,
   sections: readonly Section[],
   origin: Position3D
 ) => {
-  const positions = new Float32Array(sections.length * 6)
+  const matrices = new Float32Array(sections.length * 16)
+  const axis = new Vector3(0, 1, 0)
+  const direction = new Vector3()
+  const center = new Vector3()
+  const scale = new Vector3()
+  const rotation = new Quaternion()
+  const matrix = new Matrix4()
 
   sections.forEach((section, index) => {
-    const start = mine.nodes.get(section.startNodeId)!
-    const end = mine.nodes.get(section.endNodeId)!
+    const start = toScenePosition(
+      mine.nodes.get(section.startNodeId)!.position,
+      origin
+    )
+    const end = toScenePosition(
+      mine.nodes.get(section.endNodeId)!.position,
+      origin
+    )
+    const length = direction.subVectors(end, start).length()
+    // Уменьшаем диаметр для отображения, сохраняя исходную толщину в модели.
+    const radius = getSectionRadius(section)
 
-    toScenePosition(start.position, origin).toArray(positions, index * 6)
-    toScenePosition(end.position, origin).toArray(positions, index * 6 + 3)
+    center.addVectors(start, end).multiplyScalar(0.5)
+    rotation.setFromUnitVectors(
+      axis,
+      length > 0 ? direction.divideScalar(length) : axis
+    )
+    // Минимальная длина исключает необратимую матрицу при совпадении узлов.
+    scale.set(radius, Math.max(length, 0.001), radius)
+    matrix.compose(center, rotation, scale).toArray(matrices, index * 16)
   })
 
-  return positions
+  return matrices
+}
+
+const getSectionBounds = (
+  mine: Mine,
+  sections: readonly Section[],
+  origin: Position3D
+) => {
+  const bounds = new Box3()
+  const sectionBounds = new Box3()
+
+  for (const section of sections) {
+    sectionBounds.makeEmpty()
+    sectionBounds.expandByPoint(
+      toScenePosition(mine.nodes.get(section.startNodeId)!.position, origin)
+    )
+    sectionBounds.expandByPoint(
+      toScenePosition(mine.nodes.get(section.endNodeId)!.position, origin)
+    )
+    bounds.union(sectionBounds.expandByScalar(getSectionRadius(section)))
+  }
+
+  return bounds
 }
 
 export const getSelectedSections = (
@@ -73,10 +121,10 @@ export const buildSceneData = (mine: Mine): MineSceneData => {
     const sections = getHorizonSections(mine, horizon.id)
     if (!sections.length) return []
 
-    const positions = buildSectionPositions(mine, sections, origin)
-    bounds.union(new Box3().setFromArray(positions))
+    const matrices = buildSectionMatrices(mine, sections, origin)
+    bounds.union(getSectionBounds(mine, sections, origin))
 
-    return [{ horizonId: horizon.id, sections, positions }]
+    return [{ horizonId: horizon.id, sections, matrices }]
   })
 
   return { origin, bounds, batches }
@@ -96,11 +144,9 @@ export const getFocusBounds = (
       : new Box3()
   }
 
-  return new Box3().setFromArray(
-    buildSectionPositions(
-      mine,
-      getSelectedSections(mine, selected),
-      data.origin
-    )
+  return getSectionBounds(
+    mine,
+    getSelectedSections(mine, selected),
+    data.origin
   )
 }
