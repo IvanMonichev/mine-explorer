@@ -1,14 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
 
-export const useViewportFullscreen = () => {
-  const viewportRef = useRef<HTMLElement>(null)
+export const useViewerFullscreen = () => {
+  const viewerRef = useRef<HTMLElement>(null)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [isPending, setIsPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     const handleFullscreenChange = () => {
-      setIsFullscreen(document.fullscreenElement === viewportRef.current)
+      setIsFullscreen(document.fullscreenElement === viewerRef.current)
     }
 
     document.addEventListener('fullscreenchange', handleFullscreenChange)
@@ -18,17 +18,17 @@ export const useViewportFullscreen = () => {
   }, [])
 
   const toggleFullscreen = async () => {
-    const viewport = viewportRef.current
-    if (!viewport || isPending) return
+    const viewer = viewerRef.current
+    if (!viewer || isPending) return
 
     setError(null)
     setIsPending(true)
 
     try {
-      if (document.fullscreenElement === viewport) {
+      if (document.fullscreenElement === viewer) {
         await document.exitFullscreen()
       } else {
-        await viewport.requestFullscreen()
+        await viewer.requestFullscreen()
       }
     } catch {
       setError(
@@ -40,7 +40,7 @@ export const useViewportFullscreen = () => {
   }
 
   return {
-    viewportRef,
+    viewerRef,
     isFullscreen,
     isPending,
     isSupported: document.fullscreenEnabled,

@@ -26,7 +26,7 @@ import {
   readSidebarWidth,
   saveSidebarWidth
 } from '../model/sidebar-width'
-import { useViewportFullscreen } from '../model/use-viewport-fullscreen'
+import { useViewerFullscreen } from '../model/use-viewer-fullscreen'
 
 import styles from './mine-viewer-page.module.css'
 
@@ -43,13 +43,13 @@ export const MineViewerPage = observer(() => {
   const canRenderMine =
     Boolean(mineStore.mine?.sections.size) && !mineStore.isLoading
   const {
-    viewportRef,
+    viewerRef,
     isFullscreen,
     isPending: isFullscreenPending,
     isSupported: isFullscreenSupported,
     error: fullscreenError,
     toggleFullscreen
-  } = useViewportFullscreen()
+  } = useViewerFullscreen()
   const openLoadModal = () => {
     setIsLoadModalOpen(true)
   }
@@ -137,79 +137,84 @@ export const MineViewerPage = observer(() => {
         selectedFile={selectedFile}
       />
 
-      <Splitter
-        className={styles['viewer-body']}
-        onResizeEnd={([width]) => {
-          saveSidebarWidth(width)
-        }}
+      <section
+        aria-label='Просмотр схемы шахты'
+        className={styles['viewer-workspace']}
+        ref={viewerRef}
       >
-        <Splitter.Panel
-          className={styles['viewer-sidebar']}
-          defaultSize={sidebarWidth}
-          max={MAX_SIDEBAR_WIDTH}
-          min={MIN_SIDEBAR_WIDTH}
+        <Splitter
+          className={styles['viewer-body']}
+          onResizeEnd={([width]) => {
+            saveSidebarWidth(width)
+          }}
         >
-          <aside className={styles['viewer-sidebar-content']}>
-            <TreePanel mineStore={mineStore} viewerStore={viewerStore} />
-          </aside>
-        </Splitter.Panel>
+          <Splitter.Panel
+            className={styles['viewer-sidebar']}
+            defaultSize={sidebarWidth}
+            max={MAX_SIDEBAR_WIDTH}
+            min={MIN_SIDEBAR_WIDTH}
+          >
+            <aside className={styles['viewer-sidebar-content']}>
+              <TreePanel mineStore={mineStore} viewerStore={viewerStore} />
+            </aside>
+          </Splitter.Panel>
 
-        <Splitter.Panel className={styles['viewer-viewport-panel']} min={360}>
-          <Content className={styles['viewer-content']}>
-            <Viewport
-              ref={viewportRef}
-              toolbar={
-                <ViewportToolbar
-                  isFullscreen={isFullscreen}
-                  isFullscreenSupported={isFullscreenSupported}
-                  isPending={isFullscreenPending}
-                  mineStore={mineStore}
-                  onFitMine={
-                    canRenderMine
-                      ? () => viewerStore.requestFocus(null)
-                      : undefined
-                  }
-                  onToggleFullscreen={toggleFullscreen}
-                  viewerStore={viewerStore}
-                />
-              }
-            >
-              <div className={styles['viewer-selection']}>
-                <SelectionPanel
-                  mineStore={mineStore}
-                  viewerStore={viewerStore}
-                />
-              </div>
-              {fullscreenError && (
-                <Alert showIcon title={fullscreenError} type='error' />
-              )}
-              {mineStore.isLoading ? (
-                <LoadLayout message='Загрузка схемы…' />
-              ) : (
-                <InfoLayout
-                  conditions={[
-                    {
-                      condition: !mineStore.mine,
-                      text: 'Схема шахты не загружена'
-                    },
-                    {
-                      condition: mineStore.mine?.sections.size === 0,
-                      text: 'В схеме нет секций для отображения'
+          <Splitter.Panel className={styles['viewer-viewport-panel']} min={360}>
+            <Content className={styles['viewer-content']}>
+              <Viewport
+                toolbar={
+                  <ViewportToolbar
+                    isFullscreen={isFullscreen}
+                    isFullscreenSupported={isFullscreenSupported}
+                    isPending={isFullscreenPending}
+                    mineStore={mineStore}
+                    onFitMine={
+                      canRenderMine
+                        ? () => viewerStore.requestFocus(null)
+                        : undefined
                     }
-                  ]}
-                >
-                  {mineStore.mine && (
-                    <MineScene
-                      mine={mineStore.mine}
-                      viewerStore={viewerStore}
-                    />
-                  )}
-                </InfoLayout>
-              )}
-            </Viewport>
-          </Content>
-        </Splitter.Panel>
-      </Splitter>
+                    onToggleFullscreen={toggleFullscreen}
+                    viewerStore={viewerStore}
+                  />
+                }
+              >
+                <div className={styles['viewer-selection']}>
+                  <SelectionPanel
+                    mineStore={mineStore}
+                    viewerStore={viewerStore}
+                  />
+                </div>
+                {fullscreenError && (
+                  <Alert showIcon title={fullscreenError} type='error' />
+                )}
+                {mineStore.isLoading ? (
+                  <LoadLayout message='Загрузка схемы…' />
+                ) : (
+                  <InfoLayout
+                    conditions={[
+                      {
+                        condition: !mineStore.mine,
+                        text: 'Схема шахты не загружена'
+                      },
+                      {
+                        condition: mineStore.mine?.sections.size === 0,
+                        text: 'В схеме нет секций для отображения'
+                      }
+                    ]}
+                  >
+                    {mineStore.mine && (
+                      <MineScene
+                        mine={mineStore.mine}
+                        viewerStore={viewerStore}
+                      />
+                    )}
+                  </InfoLayout>
+                )}
+              </Viewport>
+            </Content>
+          </Splitter.Panel>
+        </Splitter>
+      </section>
 
       <StatusBar mineStore={mineStore} viewerStore={viewerStore} />
 
