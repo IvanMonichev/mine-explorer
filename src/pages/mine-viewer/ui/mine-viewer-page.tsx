@@ -1,9 +1,10 @@
-import { useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { Alert, Layout, Splitter } from 'antd'
 import { runInAction } from 'mobx'
 import { observer } from 'mobx-react-lite'
 
+import defaultMineUrl from '@/assets/data/min-scheme-hUPL7S.xml?url'
 import { loadMim } from '@/infrastructure/mim'
 import { MineScene } from '@/scene/mine'
 import { InfoLayout } from '@/shared/components/info-layout'
@@ -62,32 +63,64 @@ export const MineViewerPage = observer(() => {
     setSelectedFile(null)
   }
 
-  const handleLoad = async (file: File) => {
-    const requestId = ++loadRequestId.current
-    setIsLoadModalOpen(false)
-    mineStore.startLoading()
+  const handleLoad = useCallback(
+    async (source: File | Promise<File>) => {
+      const requestId = ++loadRequestId.current
+      setIsLoadModalOpen(false)
+      mineStore.startLoading()
 
-    try {
-      const mine = await loadMim(file)
-      if (requestId !== loadRequestId.current) return
+      try {
+        const file = await source
+        if (requestId !== loadRequestId.current) return
 
-      runInAction(() => {
-        mineStore.setMine(mine)
-        viewerStore.clear()
+        const mine = await loadMim(file)
+        if (requestId !== loadRequestId.current) return
+
+        runInAction(() => {
+          mineStore.setMine(mine)
+          viewerStore.clear()
+        })
+        setSelectedFile(file)
+        console.log('Схема шахты:', mine)
+      } catch (error) {
+        if (requestId !== loadRequestId.current) return
+
+        mineStore.setError(
+          error instanceof Error
+            ? error.message
+            : 'Не удалось загрузить схему шахты.'
+        )
+        console.error('Не удалось загрузить схему шахты:', error)
+      }
+    },
+    [mineStore, viewerStore]
+  )
+
+  useEffect(() => {
+    const controller = new AbortController()
+
+    const readDefaultFile = async () => {
+      const response = await fetch(defaultMineUrl, {
+        signal: controller.signal
       })
-      setSelectedFile(file)
-      console.log('Схема шахты:', mine)
-    } catch (error) {
-      if (requestId !== loadRequestId.current) return
+      if (!response.ok) {
+        throw new Error(
+          `Не удалось загрузить начальную схему: ${response.status} ${response.statusText}`
+        )
+      }
 
-      mineStore.setError(
-        error instanceof Error
-          ? error.message
-          : 'Не удалось загрузить схему шахты.'
-      )
-      console.error('Не удалось загрузить схему шахты:', error)
+      return new File([await response.arrayBuffer()], 'min-scheme-hUPL7S.xml', {
+        type: 'application/xml'
+      })
     }
-  }
+
+    void handleLoad(readDefaultFile())
+
+    return () => {
+      loadRequestId.current += 1
+      controller.abort()
+    }
+  }, [handleLoad])
 
   return (
     <Layout className={styles['viewer-layout']}>
