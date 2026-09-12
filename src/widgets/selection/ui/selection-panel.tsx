@@ -1,6 +1,5 @@
-import { AimOutlined } from '@ant-design/icons'
 import type { DescriptionsProps } from 'antd'
-import { Button, Descriptions, Tooltip } from 'antd'
+import { Descriptions } from 'antd'
 import { observer } from 'mobx-react-lite'
 
 import type { MineStore } from '@/store/mine'
@@ -11,11 +10,10 @@ import styles from './selection-panel.module.css'
 interface SelectionPanelProps {
   mineStore: MineStore
   viewerStore: ViewerStore
-  onFocus?: () => void
 }
 
 export const SelectionPanel = observer(
-  ({ mineStore, viewerStore, onFocus }: SelectionPanelProps) => {
+  ({ mineStore, viewerStore }: SelectionPanelProps) => {
     const mine = mineStore.mine
     const selected = viewerStore.selectedEntity
     const horizon =
@@ -80,36 +78,17 @@ export const SelectionPanel = observer(
     )
 
     return (
-      <Descriptions
-        aria-label={entity.name}
-        bordered
-        className={styles['entity-details']}
-        column={1}
-        extra={
-          <Tooltip
-            getPopupContainer={(trigger) => trigger.parentElement ?? trigger}
-            title={
-              onFocus
-                ? 'Сфокусировать камеру на объекте'
-                : 'Фокусировка станет доступна после подключения 3D-сцены'
-            }
-          >
-            <span className={styles['focus-control']}>
-              <Button
-                aria-label='Сфокусировать камеру на объекте'
-                disabled={!onFocus}
-                icon={<AimOutlined aria-hidden />}
-                onClick={onFocus}
-                size='small'
-                type='text'
-              />
-            </span>
-          </Tooltip>
-        }
-        items={items}
-        size='small'
-        title={entity.name}
-      />
+      <div className={styles['selection-panel']}>
+        <Descriptions
+          aria-label={entity.name}
+          bordered
+          className={styles['entity-details']}
+          column={1}
+          items={items}
+          size='small'
+          title={entity.name}
+        />
+      </div>
     )
   }
 )

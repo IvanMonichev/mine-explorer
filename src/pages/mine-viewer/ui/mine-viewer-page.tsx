@@ -1,9 +1,11 @@
 import { useRef, useState } from 'react'
 
 import { Alert, Layout, Splitter } from 'antd'
+import { runInAction } from 'mobx'
 import { observer } from 'mobx-react-lite'
 
 import { loadMim } from '@/infrastructure/mim'
+import { MineScene } from '@/scene/mine'
 import { InfoLayout } from '@/shared/components/info-layout'
 import { LoadLayout } from '@/shared/components/load-layout'
 import { MineStore } from '@/store/mine'
@@ -37,6 +39,8 @@ export const MineViewerPage = observer(() => {
   const [isLoadModalOpen, setIsLoadModalOpen] = useState(false)
   const [isAboutModalOpen, setIsAboutModalOpen] = useState(false)
   const [sidebarWidth] = useState(readSidebarWidth)
+  const canRenderMine =
+    Boolean(mineStore.mine?.sections.size) && !mineStore.isLoading
   const {
     viewportRef,
     isFullscreen,
@@ -51,8 +55,10 @@ export const MineViewerPage = observer(() => {
 
   const handleClear = () => {
     loadRequestId.current += 1
-    mineStore.clear()
-    viewerStore.clear()
+    runInAction(() => {
+      mineStore.clear()
+      viewerStore.clear()
+    })
     setSelectedFile(null)
   }
 
@@ -65,8 +71,10 @@ export const MineViewerPage = observer(() => {
       const mine = await loadMim(file)
       if (requestId !== loadRequestId.current) return
 
-      mineStore.setMine(mine)
-      viewerStore.clear()
+      runInAction(() => {
+        mineStore.setMine(mine)
+        viewerStore.clear()
+      })
       setSelectedFile(file)
       console.log('Схема шахты:', mine)
     } catch (error) {
@@ -122,12 +130,22 @@ export const MineViewerPage = observer(() => {
                   isFullscreen={isFullscreen}
                   isFullscreenSupported={isFullscreenSupported}
                   isPending={isFullscreenPending}
+                  mineStore={mineStore}
+                  onFitMine={
+                    canRenderMine
+                      ? () => viewerStore.requestFocus(null)
+                      : undefined
+                  }
                   onToggleFullscreen={toggleFullscreen}
+                  viewerStore={viewerStore}
                 />
               }
             >
               <div className={styles['viewer-selection']}>
-                <SelectionPanel mineStore={mineStore} viewerStore={viewerStore} />
+                <SelectionPanel
+                  mineStore={mineStore}
+                  viewerStore={viewerStore}
+                />
               </div>
               {fullscreenError && (
                 <Alert showIcon title={fullscreenError} type='error' />
@@ -142,11 +160,18 @@ export const MineViewerPage = observer(() => {
                       text: 'Схема шахты не загружена'
                     },
                     {
-                      condition: Boolean(mineStore.mine),
-                      text: 'Схема загружена. Выберите объект в дереве.'
+                      condition: mineStore.mine?.sections.size === 0,
+                      text: 'В схеме нет секций для отображения'
                     }
                   ]}
-                />
+                >
+                  {mineStore.mine && (
+                    <MineScene
+                      mine={mineStore.mine}
+                      viewerStore={viewerStore}
+                    />
+                  )}
+                </InfoLayout>
               )}
             </Viewport>
           </Content>

@@ -1,22 +1,60 @@
 import { makeAutoObservable, observableRef } from 'mobx'
 
 import type { SelectedEntityRef } from '@/domain/mine'
+import type { Position3D } from '@/shared/types/position-3d'
 
 export class ViewerStore {
   selectedEntity: SelectedEntityRef | null = null
+  focusRequest: { entity: SelectedEntityRef | null } | null = null
+  cameraPosition: Position3D | null = null
+  cameraDirectionRequest: Position3D | null = null
+  showGrid = false
+  showOrientation = true
   hiddenHorizonIds = new Set<number>()
   hiddenExcavationIds = new Set<number>()
 
   constructor() {
     makeAutoObservable(
       this,
-      { selectedEntity: observableRef },
+      {
+        selectedEntity: observableRef,
+        focusRequest: observableRef,
+        cameraPosition: observableRef,
+        cameraDirectionRequest: observableRef
+      },
       { autoBind: true }
     )
   }
 
   select(entity: SelectedEntityRef | null) {
     this.selectedEntity = entity
+  }
+
+  requestFocus(entity: SelectedEntityRef | null) {
+    this.focusRequest = { entity }
+  }
+
+  requestCameraDirection(direction: Position3D) {
+    this.cameraDirectionRequest = direction
+  }
+
+  toggleGrid() {
+    this.showGrid = !this.showGrid
+  }
+
+  toggleOrientation() {
+    this.showOrientation = !this.showOrientation
+  }
+
+  setCameraPosition(position: Position3D | null) {
+    if (
+      this.cameraPosition?.x === position?.x &&
+      this.cameraPosition?.y === position?.y &&
+      this.cameraPosition?.z === position?.z
+    )
+      return
+
+    this.cameraPosition = position
   }
 
   isHorizonVisible(id: number) {
@@ -39,6 +77,9 @@ export class ViewerStore {
 
   clear() {
     this.selectedEntity = null
+    this.focusRequest = null
+    this.cameraPosition = null
+    this.cameraDirectionRequest = null
     this.hiddenHorizonIds.clear()
     this.hiddenExcavationIds.clear()
   }
