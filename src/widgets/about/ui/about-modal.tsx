@@ -26,6 +26,7 @@ export const AboutModal = ({ open, onCancel }: AboutModalProps) => (
       items={[
         { key: 'name', label: 'Название', children: APP_INFO.name },
         { key: 'version', label: 'Версия', children: APP_INFO.version },
+        { key: 'author', label: 'Автор', children: APP_INFO.author },
         { key: 'city', label: 'Город', children: APP_INFO.city }
       ]}
       size='small'
