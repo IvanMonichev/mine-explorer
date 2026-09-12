@@ -1,0 +1,27 @@
+.about-modal:global(.ant-modal) :global(.ant-modal-container) {
+  padding: 12px 16px;
+}
+
+.about-modal:global(.ant-modal) :global(.ant-modal-header) {
+  margin-bottom: 8px;
+  padding-inline-end: 24px;
+}
+
+.about-modal:global(.ant-modal) :global(.ant-modal-close) {
+  top: 12px;
+  inset-inline-end: 12px;
+}
+
+.details :global(.ant-descriptions-row) > :global(.ant-descriptions-item) {
+  padding-bottom: 4px;
+}
+
+.details
+  :global(.ant-descriptions-row):last-child
+  > :global(.ant-descriptions-item) {
+  padding-bottom: 0;
+}
+
+.details :global(.ant-descriptions-item-label) {
+  flex: 0 0 72px;
+}

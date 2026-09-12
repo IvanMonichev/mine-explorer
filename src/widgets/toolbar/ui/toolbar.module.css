@@ -15,8 +15,13 @@
   flex: 1;
 }
 
+.about-button {
+  margin-inline-start: auto;
+}
+
 @media (max-width: 600px) {
   .file-name {
     flex-basis: 100%;
+    order: 1;
   }
 }

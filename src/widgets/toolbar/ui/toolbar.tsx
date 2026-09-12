@@ -1,4 +1,8 @@
-import { DeleteOutlined, FolderOpenOutlined } from '@ant-design/icons'
+import {
+  DeleteOutlined,
+  FolderOpenOutlined,
+  QuestionCircleOutlined
+} from '@ant-design/icons'
 import { Button, Tooltip, Typography } from 'antd'
 
 import styles from './toolbar.module.css'
@@ -8,12 +12,14 @@ const { Text } = Typography
 interface ToolbarProps {
   selectedFile: File | null
   onOpenLoadModal: () => void
+  onOpenAboutModal: () => void
   onClear: () => void
 }
 
 export const Toolbar = ({
   selectedFile,
   onOpenLoadModal,
+  onOpenAboutModal,
   onClear
 }: ToolbarProps) => (
   <div
@@ -47,5 +53,14 @@ export const Toolbar = ({
     >
       {selectedFile?.name ?? 'Схема не загружена'}
     </Text>
+    <Tooltip title='О приложении'>
+      <Button
+        aria-label='О приложении'
+        className={styles['about-button']}
+        icon={<QuestionCircleOutlined aria-hidden />}
+        onClick={onOpenAboutModal}
+        type='text'
+      />
+    </Tooltip>
   </div>
 )

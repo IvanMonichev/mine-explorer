@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { Alert, Divider, Layout, Splitter } from 'antd'
 
 import { InfoLayout } from '@/shared/components/info-layout'
+import { AboutModal } from '@/widgets/about'
 import { LoadModal } from '@/widgets/load'
 import { SelectionPanel } from '@/widgets/selection'
 import { StatusBar } from '@/widgets/status-bar'
@@ -26,6 +27,7 @@ const { Content } = Layout
 export const MineViewerPage = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [isLoadModalOpen, setIsLoadModalOpen] = useState(false)
+  const [isAboutModalOpen, setIsAboutModalOpen] = useState(false)
   const [sidebarWidth] = useState(readSidebarWidth)
   const {
     viewportRef,
@@ -46,6 +48,9 @@ export const MineViewerPage = () => {
       <Toolbar
         onClear={() => {
           setSelectedFile(null)
+        }}
+        onOpenAboutModal={() => {
+          setIsAboutModalOpen(true)
         }}
         onOpenLoadModal={openLoadModal}
         selectedFile={selectedFile}
@@ -100,6 +105,13 @@ export const MineViewerPage = () => {
       </Splitter>
 
       <StatusBar hasSelectedFile={hasSelectedFile} />
+
+      <AboutModal
+        onCancel={() => {
+          setIsAboutModalOpen(false)
+        }}
+        open={isAboutModalOpen}
+      />
 
       <LoadModal
         onCancel={() => {
