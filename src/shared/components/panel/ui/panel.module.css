@@ -1,0 +1,18 @@
+.panel {
+  padding: 16px;
+}
+
+.panel-heading {
+  min-height: 28px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.panel-heading :global(.ant-typography) {
+  color: var(--ant-color-text-heading);
+  font-family: Verdana, Arial, sans-serif;
+}

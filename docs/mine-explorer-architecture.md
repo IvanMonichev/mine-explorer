@@ -104,19 +104,30 @@ Domain → Shared
 
 ```text
 shared/
-├── ui/
-├── lib/
-├── config/
-└── types/
+├── components/
+│   ├── info-layout/
+│   ├── load-layout/
+│   └── panel/
+├── types/
+├── utils/
+└── constants/
 ```
 
-Здесь находятся generic UI-компоненты, helpers, общие типы и конфигурация.
+В `components` находятся общие UI-компоненты. Каждый компонент хранит свои
+файлы в `ui` и экспортируется через собственный `index.ts`. Типы пропсов остаются
+рядом с компонентом.
+
+В `types` находятся переиспользуемые типы, в `utils` — чистые вспомогательные
+функции, в `constants` — общие константы. Конфигурация приложения, включая тему,
+находится в `app/config`.
 
 `Shared` не зависит от других архитектурных слоёв.
 
 ---
 
 ## Project Structure Model
+
+Функциональные слои используют структуру:
 
 ```text
 Layer
@@ -125,12 +136,15 @@ Layer
         └── Files
 ```
 
+В `app` файлы группируются непосредственно по сегментам, например `app/config`.
+В `shared` используются категории `components`, `types`, `utils` и `constants`.
+
 Примеры slices:
 
 ```text
 pages/mine-explorer
 scene/mine
-widgets/mine-tree
+widgets/tree
 domain/mine
 infrastructure/mim
 store/viewer

@@ -1,0 +1,15 @@
+.upload:global(.ant-upload-wrapper) :global(.ant-upload-drag) {
+  border-color: var(--ant-color-primary-border);
+  background: var(--ant-color-fill-alter);
+}
+
+.upload:global(.ant-upload-wrapper) :global(.ant-upload-drag):hover {
+  border-color: var(--ant-color-primary);
+  background: var(--ant-color-primary-bg);
+}
+
+.upload :global(.ant-upload-drag-container) {
+  display: grid;
+  gap: 6px;
+  padding: 4px;
+}
