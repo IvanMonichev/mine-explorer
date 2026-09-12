@@ -1,9 +1,13 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 
-import { Alert, Divider, Layout, Splitter } from 'antd'
+import { Alert, Layout, Splitter } from 'antd'
+import { observer } from 'mobx-react-lite'
 
 import { loadMim } from '@/infrastructure/mim'
 import { InfoLayout } from '@/shared/components/info-layout'
+import { LoadLayout } from '@/shared/components/load-layout'
+import { MineStore } from '@/store/mine'
+import { ViewerStore } from '@/store/viewer'
 import { AboutModal } from '@/widgets/about'
 import { LoadModal } from '@/widgets/load'
 import { SelectionPanel } from '@/widgets/selection'
@@ -25,7 +29,10 @@ import styles from './mine-viewer-page.module.css'
 
 const { Content } = Layout
 
-export const MineViewerPage = () => {
+export const MineViewerPage = observer(() => {
+  const [mineStore] = useState(() => new MineStore())
+  const [viewerStore] = useState(() => new ViewerStore())
+  const loadRequestId = useRef(0)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [isLoadModalOpen, setIsLoadModalOpen] = useState(false)
   const [isAboutModalOpen, setIsAboutModalOpen] = useState(false)
@@ -38,18 +45,50 @@ export const MineViewerPage = () => {
     error: fullscreenError,
     toggleFullscreen
   } = useViewportFullscreen()
-  const hasSelectedFile = selectedFile !== null
-
   const openLoadModal = () => {
     setIsLoadModalOpen(true)
+  }
+
+  const handleClear = () => {
+    loadRequestId.current += 1
+    mineStore.clear()
+    viewerStore.clear()
+    setSelectedFile(null)
+  }
+
+  const handleLoad = async (file: File) => {
+    const requestId = ++loadRequestId.current
+    setIsLoadModalOpen(false)
+    mineStore.startLoading()
+
+    try {
+      const mine = await loadMim(file)
+      if (requestId !== loadRequestId.current) return
+
+      mineStore.setMine(mine)
+      viewerStore.clear()
+      setSelectedFile(file)
+      console.log('Схема шахты:', mine)
+    } catch (error) {
+      if (requestId !== loadRequestId.current) return
+
+      mineStore.setError(
+        error instanceof Error
+          ? error.message
+          : 'Не удалось загрузить схему шахты.'
+      )
+      console.error('Не удалось загрузить схему шахты:', error)
+    }
   }
 
   return (
     <Layout className={styles['viewer-layout']}>
       <Toolbar
-        onClear={() => {
-          setSelectedFile(null)
-        }}
+        canClear={Boolean(
+          mineStore.mine || mineStore.error || mineStore.isLoading
+        )}
+        isLoading={mineStore.isLoading}
+        onClear={handleClear}
         onOpenAboutModal={() => {
           setIsAboutModalOpen(true)
         }}
@@ -69,10 +108,8 @@ export const MineViewerPage = () => {
           max={MAX_SIDEBAR_WIDTH}
           min={MIN_SIDEBAR_WIDTH}
         >
-          <aside>
-            <TreePanel />
-            <Divider className={styles['viewer-divider']} />
-            <SelectionPanel />
+          <aside className={styles['viewer-sidebar-content']}>
+            <TreePanel mineStore={mineStore} viewerStore={viewerStore} />
           </aside>
         </Splitter.Panel>
 
@@ -89,23 +126,34 @@ export const MineViewerPage = () => {
                 />
               }
             >
+              <div className={styles['viewer-selection']}>
+                <SelectionPanel mineStore={mineStore} viewerStore={viewerStore} />
+              </div>
               {fullscreenError && (
                 <Alert showIcon title={fullscreenError} type='error' />
               )}
-              <InfoLayout
-                description={
-                  hasSelectedFile
-                    ? 'Файл готов к обработке'
-                    : 'Схема шахты не загружена'
-                }
-                title='3D-сцена'
-              />
+              {mineStore.isLoading ? (
+                <LoadLayout message='Загрузка схемы…' />
+              ) : (
+                <InfoLayout
+                  conditions={[
+                    {
+                      condition: !mineStore.mine,
+                      text: 'Схема шахты не загружена'
+                    },
+                    {
+                      condition: Boolean(mineStore.mine),
+                      text: 'Схема загружена. Выберите объект в дереве.'
+                    }
+                  ]}
+                />
+              )}
             </Viewport>
           </Content>
         </Splitter.Panel>
       </Splitter>
 
-      <StatusBar hasSelectedFile={hasSelectedFile} />
+      <StatusBar mineStore={mineStore} />
 
       <AboutModal
         onCancel={() => {
@@ -118,19 +166,9 @@ export const MineViewerPage = () => {
         onCancel={() => {
           setIsLoadModalOpen(false)
         }}
-        onLoad={async (file) => {
-          setSelectedFile(file)
-          setIsLoadModalOpen(false)
-
-          try {
-            const mine = await loadMim(file)
-            console.log('Схема шахты:', mine)
-          } catch (error) {
-            console.error('Не удалось загрузить схему шахты:', error)
-          }
-        }}
+        onLoad={handleLoad}
         open={isLoadModalOpen}
       />
     </Layout>
   )
-}
+})

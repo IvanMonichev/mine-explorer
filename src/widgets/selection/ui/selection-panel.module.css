@@ -1,3 +1,47 @@
-.viewer-empty {
-  margin: 8px 0 4px;
+.entity-details {
+  width: fit-content;
+  max-width: 100%;
+  overflow: hidden;
+  border: 1px solid var(--ant-color-border);
+  border-top: 0;
+  border-left: 0;
+  border-radius: 0 0 6px;
+  background: var(--ant-color-bg-container);
+}
+
+.entity-details:global(.ant-descriptions) :global(.ant-descriptions-header) {
+  gap: 4px;
+  margin-bottom: 0;
+  padding: 2px 4px;
+  border-bottom: 1px solid var(--ant-color-border);
+}
+
+.entity-details :global(.ant-descriptions-title) {
+  min-width: 0;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.entity-details:global(.ant-descriptions) :global(.ant-descriptions-view) {
+  border: 0;
+  border-radius: 0;
+}
+
+.entity-details:global(.ant-descriptions.ant-descriptions-bordered.ant-descriptions-small)
+  :global(.ant-descriptions-row)
+  > :is(th, td) {
+  padding: 2px 4px;
+  font-size: 12px;
+}
+
+.entity-details :global(.ant-descriptions-item-content) {
+  overflow-wrap: anywhere;
+}
+
+.entity-details :global(.ant-descriptions-item-label) {
+  white-space: nowrap;
+}
+
+.focus-control {
+  display: inline-flex;
 }

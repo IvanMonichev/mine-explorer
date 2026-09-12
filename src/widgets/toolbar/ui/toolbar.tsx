@@ -11,6 +11,8 @@ const { Text } = Typography
 
 interface ToolbarProps {
   selectedFile: File | null
+  isLoading: boolean
+  canClear: boolean
   onOpenLoadModal: () => void
   onOpenAboutModal: () => void
   onClear: () => void
@@ -18,6 +20,8 @@ interface ToolbarProps {
 
 export const Toolbar = ({
   selectedFile,
+  isLoading,
+  canClear,
   onOpenLoadModal,
   onOpenAboutModal,
   onClear
@@ -31,6 +35,7 @@ export const Toolbar = ({
       <Button
         aria-label='Загрузить схему XML'
         icon={<FolderOpenOutlined aria-hidden />}
+        loading={isLoading}
         onClick={onOpenLoadModal}
         type='primary'
       />
@@ -39,20 +44,12 @@ export const Toolbar = ({
       <span>
         <Button
           aria-label='Очистить'
-          disabled={!selectedFile}
+          disabled={!canClear}
           icon={<DeleteOutlined aria-hidden />}
           onClick={onClear}
         />
       </span>
     </Tooltip>
-    <Text
-      className={styles['file-name']}
-      ellipsis
-      title={selectedFile?.name}
-      type='secondary'
-    >
-      {selectedFile?.name ?? 'Схема не загружена'}
-    </Text>
     <Tooltip title='О приложении'>
       <Button
         aria-label='О приложении'
