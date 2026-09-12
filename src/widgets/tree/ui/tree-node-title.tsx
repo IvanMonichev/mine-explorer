@@ -7,6 +7,7 @@ import {
 import { Button, Tooltip } from 'antd'
 import { observer } from 'mobx-react-lite'
 
+import { getCategoryColor } from '@/shared/utils/get-category-color'
 import type { ViewerStore } from '@/store/viewer'
 
 import type { MineTreeNode } from '../model/mine-tree-node'
@@ -37,9 +38,19 @@ export const TreeNodeTitle = observer(
           title={node.title}
         >
           {isHorizon ? (
-            <BuildOutlined aria-hidden />
+            <BuildOutlined
+              aria-hidden
+              style={{
+                color: isVisible ? getCategoryColor(node.horizonId) : undefined
+              }}
+            />
           ) : (
-            <NodeIndexOutlined aria-hidden />
+            <NodeIndexOutlined
+              aria-hidden
+              style={{
+                color: isVisible ? getCategoryColor(node.horizonId) : undefined
+              }}
+            />
           )}
           <span className={styles['node-name']}>{node.title}</span>
         </span>
@@ -51,6 +62,9 @@ export const TreeNodeTitle = observer(
           {node.sectionCount}
         </span>
         <Tooltip
+          getPopupContainer={(trigger) =>
+            trigger.closest<HTMLElement>(':fullscreen') ?? document.body
+          }
           title={isParentHidden ? 'Сначала покажите горизонт' : visibilityLabel}
         >
           <span

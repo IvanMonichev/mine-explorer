@@ -1,11 +1,11 @@
-import type { Key } from 'react'
+import type { ComponentRef, Key } from 'react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { SearchOutlined } from '@ant-design/icons'
 import { Alert, Input, Tree } from 'antd'
 import { observer } from 'mobx-react-lite'
 
-import type { Mine } from '@/domain/mine'
+import type { Mine, SelectedEntityRef } from '@/domain/mine'
 import { InfoLayout } from '@/shared/components/info-layout'
 import { LoadLayout } from '@/shared/components/load-layout'
 import { Panel } from '@/shared/components/panel'
@@ -18,6 +18,8 @@ import type { MineTreeNode } from '../model/mine-tree-node'
 
 import { TreeNodeTitle } from './tree-node-title'
 import styles from './tree-panel.module.css'
+
+const TREE_ITEM_HEIGHT = 28
 
 interface TreePanelProps {
   mineStore: MineStore
@@ -35,6 +37,8 @@ interface MineTreeProps {
 const MineTree = observer(
   ({ mine, viewerStore, search, expandedKeys, onExpand }: MineTreeProps) => {
     const containerRef = useRef<HTMLDivElement>(null)
+    const treeRef = useRef<ComponentRef<typeof Tree>>(null)
+    const anchoredSelectionRef = useRef<SelectedEntityRef | null>(null)
     const [height, setHeight] = useState(1)
     const treeData = useMemo(() => buildTreeData(mine), [mine])
     const filteredTreeData = useMemo(
@@ -55,6 +59,36 @@ const MineTree = observer(
       return () => resizeObserver.disconnect()
     }, [])
 
+    useEffect(() => {
+      if (!selected) {
+        anchoredSelectionRef.current = null
+        return
+      }
+      if (height <= 1 || anchoredSelectionRef.current === selected) return
+
+      const key = `${selected.type}:${selected.id}`
+      const parent = filteredTreeData.find(
+        (horizon) =>
+          horizon.key === key ||
+          horizon.children?.some((node) => node.key === key)
+      )
+      if (!parent || (parent.key !== key && !expandedKeys.includes(parent.key)))
+        return
+
+      const frame = requestAnimationFrame(() => {
+        const tree = treeRef.current
+        if (!tree) return
+
+        tree.scrollTo({
+          key,
+          align: 'top',
+          offset: Math.max(0, (height - TREE_ITEM_HEIGHT) / 2)
+        })
+        anchoredSelectionRef.current = selected
+      })
+      return () => cancelAnimationFrame(frame)
+    }, [expandedKeys, filteredTreeData, height, selected])
+
     return (
       <div className={styles['tree-container']} ref={containerRef}>
         <InfoLayout
@@ -71,12 +105,13 @@ const MineTree = observer(
             className={styles['viewer-tree']}
             expandedKeys={expandedKeys}
             height={height}
-            itemHeight={28}
+            itemHeight={TREE_ITEM_HEIGHT}
             motion={null}
             onExpand={onExpand}
             onSelect={(_, { node, selected }) => {
               viewerStore.select(selected ? node.entity : null)
             }}
+            ref={treeRef}
             selectedKeys={selected ? [`${selected.type}:${selected.id}`] : []}
             titleRender={(node) => (
               <TreeNodeTitle node={node} viewerStore={viewerStore} />
@@ -93,6 +128,26 @@ export const TreePanel = observer(
   ({ mineStore, viewerStore }: TreePanelProps) => {
     const [search, setSearch] = useState('')
     const [expandedKeys, setExpandedKeys] = useState<Key[]>([])
+    const mine = mineStore.mine
+    const selected = viewerStore.selectedEntity
+
+    useEffect(() => {
+      if (!mine || selected?.type !== 'excavation') return
+
+      const excavation = mine.excavations.get(selected.id)
+      if (!excavation) return
+
+      const horizon = mine.horizons.get(excavation.horizonId)
+      const key = `horizon:${excavation.horizonId}`
+      setExpandedKeys((keys) => (keys.includes(key) ? keys : [...keys, key]))
+      setSearch((value) => {
+        const query = value.trim().toLowerCase()
+        return excavation.name.toLowerCase().includes(query) ||
+          horizon?.name.toLowerCase().includes(query)
+          ? value
+          : ''
+      })
+    }, [mine, selected])
 
     return (
       <Panel className={styles['viewer-tree-panel']}>
