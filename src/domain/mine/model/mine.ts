@@ -3,7 +3,10 @@ import type { Horizon } from '@/domain/horizon'
 import type { MineNode } from '@/domain/node'
 import type { Section } from '@/domain/section'
 
-/** Static topology. Map keys match entity ids; relationships use those ids. */
+/**
+ * Шахта — статическая топология схемы.
+ * Ключи индексов и связи соответствуют идентификаторам сущностей.
+ */
 export interface Mine {
   readonly name: string
   readonly nodes: ReadonlyMap<number, MineNode>

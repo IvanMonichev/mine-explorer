@@ -1,3 +1,4 @@
+/** Секция выработки между двумя узлами. */
 export interface Section {
   readonly id: number
   readonly guid: string

@@ -2,6 +2,7 @@ import { useState } from 'react'
 
 import { Alert, Divider, Layout, Splitter } from 'antd'
 
+import { loadMim } from '@/infrastructure/mim'
 import { InfoLayout } from '@/shared/components/info-layout'
 import { AboutModal } from '@/widgets/about'
 import { LoadModal } from '@/widgets/load'
@@ -117,9 +118,16 @@ export const MineViewerPage = () => {
         onCancel={() => {
           setIsLoadModalOpen(false)
         }}
-        onLoad={(file) => {
+        onLoad={async (file) => {
           setSelectedFile(file)
           setIsLoadModalOpen(false)
+
+          try {
+            const mine = await loadMim(file)
+            console.log('Схема шахты:', mine)
+          } catch (error) {
+            console.error('Не удалось загрузить схему шахты:', error)
+          }
         }}
         open={isLoadModalOpen}
       />

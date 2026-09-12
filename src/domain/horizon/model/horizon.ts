@@ -1,3 +1,4 @@
+/** Горизонт шахты. */
 export interface Horizon {
   readonly id: number
   readonly guid: string

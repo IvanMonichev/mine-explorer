@@ -1,3 +1,4 @@
+/** Горная выработка. */
 export interface Excavation {
   readonly id: number
   readonly guid: string
