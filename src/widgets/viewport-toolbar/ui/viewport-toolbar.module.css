@@ -1,0 +1,11 @@
+.viewport-toolbar {
+  height: 28px;
+  padding: 0 6px;
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  border-bottom: 1px solid var(--ant-color-border-secondary);
+  background: var(--ant-color-bg-container);
+}

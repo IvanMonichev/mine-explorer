@@ -9,8 +9,8 @@ export const appTheme: ThemeConfig = {
     colorPrimaryActive: '#000000',
     colorPrimaryBg: '#f0f0f0',
     colorPrimaryBgHover: '#e5e5e5',
-    colorPrimaryBorder: '#d4d4d4',
-    colorPrimaryBorderHover: '#a3a3a3',
+    colorPrimaryBorder: '#b3b3b3',
+    colorPrimaryBorderHover: '#8c8c8c',
     colorPrimaryText: '#111111',
     colorPrimaryTextHover: '#525252',
     colorPrimaryTextActive: '#000000',
@@ -26,8 +26,8 @@ export const appTheme: ThemeConfig = {
     colorBgContainer: '#ffffff',
     colorBgElevated: '#ffffff',
     colorBgLayout: '#f5f5f5',
-    colorBorder: '#d3d3d3',
-    colorBorderSecondary: '#e3e3e3',
+    colorBorder: '#b3b3b3',
+    colorBorderSecondary: '#c4c4c4',
     colorFillAlter: '#fafafa',
     colorBgSpotlight: '#111111',
     colorSuccess: '#333333',
@@ -39,9 +39,13 @@ export const appTheme: ThemeConfig = {
   components: {
     Button: {
       defaultColor: '#111111',
-      defaultBorderColor: '#d4d4d4',
+      defaultBorderColor: '#b3b3b3',
       defaultShadow: 'none',
       primaryShadow: 'none'
+    },
+    Splitter: {
+      controlItemBgActive: '#000000',
+      controlItemBgActiveHover: '#000000'
     }
   }
 }
