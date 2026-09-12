@@ -3,10 +3,48 @@
   padding: 4px 8px;
   display: flex;
   flex-shrink: 0;
+  flex-wrap: wrap;
   align-items: center;
+  gap: 4px 12px;
   border-top: 1px solid var(--ant-color-border-secondary);
   background: var(--ant-color-bg-container);
   line-height: 1.3;
+}
+
+.camera-position {
+  width: calc(124px + 18ch);
+  max-width: 100%;
+  margin-left: auto;
+  flex-shrink: 0;
+  table-layout: fixed;
+  border-collapse: collapse;
+  color: var(--ant-color-text-secondary);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.camera-position :is(th, td) {
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.camera-position th {
+  width: 52px;
+  font-weight: normal;
+  text-align: left;
+}
+
+.camera-position .camera-axis {
+  width: 24px;
+  text-align: center;
+}
+
+.camera-position td:not(.camera-axis) {
+  width: 6ch;
 }
 
 .status-tag,

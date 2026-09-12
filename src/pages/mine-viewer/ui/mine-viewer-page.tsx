@@ -178,7 +178,7 @@ export const MineViewerPage = observer(() => {
         </Splitter.Panel>
       </Splitter>
 
-      <StatusBar mineStore={mineStore} />
+      <StatusBar mineStore={mineStore} viewerStore={viewerStore} />
 
       <AboutModal
         onCancel={() => {
