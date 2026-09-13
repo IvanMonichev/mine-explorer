@@ -14,14 +14,13 @@ import {
   MINE_SCENE_BACKGROUND_COLOR,
   MINE_SCENE_CANVAS_SETTINGS,
   SECTION_RADIAL_SEGMENTS
-} from '../model/mine-scene-config'
+} from '../model/constants'
 
 import { HorizonInstances } from './horizon-instances'
 import { MineCamera } from './mine-camera'
 import styles from './mine-scene.module.css'
 import { SceneErrorBoundary } from './scene-error-boundary'
 import { SceneHelpers } from './scene-helpers'
-import { SceneMetrics } from './scene-metrics'
 import { SelectionInstances } from './selection-instances'
 
 interface MineSceneProps {
@@ -72,7 +71,6 @@ export const MineScene = ({ mine, viewerStore }: MineSceneProps) => {
           />
           <MineCamera data={data} mine={mine} viewerStore={viewerStore} />
           <SceneHelpers data={data} viewerStore={viewerStore} />
-          <SceneMetrics viewerStore={viewerStore} />
         </Canvas>
       </div>
     </SceneErrorBoundary>

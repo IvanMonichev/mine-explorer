@@ -34,7 +34,7 @@ export const ViewportToolbar = observer(
     onToggleFullscreen,
     onFitMine
   }: ViewportToolbarProps) => {
-    const label = isFullscreen
+    const fullscreenLabel = isFullscreen
       ? 'Выйти из полноэкранного режима'
       : 'На весь экран'
     const selected = viewerStore.selectedEntity
@@ -51,39 +51,6 @@ export const ViewportToolbar = observer(
         className={styles['viewport-toolbar']}
         role='toolbar'
       >
-        {[
-          {
-            label: 'Сетка',
-            active: viewerStore.showGrid,
-            icon: <TableOutlined aria-hidden />,
-            onClick: viewerStore.toggleGrid
-          },
-          {
-            label: 'Куб ориентации',
-            active: viewerStore.showOrientation,
-            icon: <CompassOutlined aria-hidden />,
-            onClick: viewerStore.toggleOrientation
-          }
-        ].map(({ label, active, icon, onClick }) => (
-          <Tooltip
-            getPopupContainer={(trigger) => trigger.parentElement ?? trigger}
-            key={label}
-            placement='bottomLeft'
-            title={`${label}: ${active ? 'выключить' : 'включить'}`}
-          >
-            <span>
-              <Button
-                aria-label={label}
-                aria-pressed={active}
-                disabled={!onFitMine}
-                icon={icon}
-                onClick={onClick}
-                size='small'
-                type={active ? 'primary' : 'text'}
-              />
-            </span>
-          </Tooltip>
-        ))}
         <ConfigProvider wave={{ disabled: true }}>
           <Tooltip
             getPopupContainer={(trigger) => trigger.parentElement ?? trigger}
@@ -106,6 +73,41 @@ export const ViewportToolbar = observer(
         <Tooltip
           getPopupContainer={(trigger) => trigger.parentElement ?? trigger}
           placement='bottomLeft'
+          title={`Сетка: ${viewerStore.showGrid ? 'выключить' : 'включить'}`}
+        >
+          <span>
+            <Button
+              aria-label='Сетка'
+              aria-pressed={viewerStore.showGrid}
+              disabled={!onFitMine}
+              icon={<TableOutlined aria-hidden />}
+              onClick={viewerStore.toggleGrid}
+              size='small'
+              type={viewerStore.showGrid ? 'primary' : 'text'}
+            />
+          </span>
+        </Tooltip>
+        <Tooltip
+          getPopupContainer={(trigger) => trigger.parentElement ?? trigger}
+          placement='bottomLeft'
+          title={`Куб ориентации: ${viewerStore.showOrientation ? 'выключить' : 'включить'}`}
+        >
+          <span>
+            <Button
+              aria-label='Куб ориентации'
+              aria-pressed={viewerStore.showOrientation}
+              disabled={!onFitMine}
+              icon={<CompassOutlined aria-hidden />}
+              onClick={viewerStore.toggleOrientation}
+              size='small'
+              type={viewerStore.showOrientation ? 'primary' : 'text'}
+            />
+          </span>
+        </Tooltip>
+
+        <Tooltip
+          getPopupContainer={(trigger) => trigger.parentElement ?? trigger}
+          placement='bottomLeft'
           title='Показать всю схему'
         >
           <span>
@@ -123,12 +125,14 @@ export const ViewportToolbar = observer(
           getPopupContainer={(trigger) => trigger.parentElement ?? trigger}
           placement='bottomLeft'
           title={
-            isFullscreenSupported ? label : 'Полноэкранный режим недоступен'
+            isFullscreenSupported
+              ? fullscreenLabel
+              : 'Полноэкранный режим недоступен'
           }
         >
           <span>
             <Button
-              aria-label={label}
+              aria-label={fullscreenLabel}
               aria-pressed={isFullscreen}
               disabled={!isFullscreenSupported}
               icon={

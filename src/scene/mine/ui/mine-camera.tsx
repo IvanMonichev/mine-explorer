@@ -10,8 +10,8 @@ import type { Mine } from '@/domain/mine'
 import type { ViewerStore } from '@/store/viewer'
 
 import { getFocusBounds } from '../lib/build-scene-data'
-import { CAMERA_POSITION_UPDATE_INTERVAL_MS } from '../model/mine-scene-config'
-import type { MineSceneData } from '../model/mine-scene-data'
+import { CAMERA_POSITION_UPDATE_INTERVAL_MS } from '../model/constants'
+import type { MineSceneData } from '../model/types'
 
 interface MineCameraProps {
   mine: Mine

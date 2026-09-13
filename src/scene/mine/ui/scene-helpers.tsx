@@ -4,7 +4,7 @@ import { Vector3 } from 'three'
 
 import type { ViewerStore } from '@/store/viewer'
 
-import type { MineSceneData } from '../model/mine-scene-data'
+import type { MineSceneData } from '../model/types'
 
 const CUBE_FACES = ['Справа', 'Слева', 'Сверху', 'Снизу', 'Спереди', 'Сзади']
 

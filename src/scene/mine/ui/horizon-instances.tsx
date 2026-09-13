@@ -4,7 +4,7 @@ import type { CylinderGeometry } from 'three'
 import { getCategoryColor } from '@/shared/utils/get-category-color'
 import type { ViewerStore } from '@/store/viewer'
 
-import type { HorizonBatch } from '../model/mine-scene-data'
+import type { HorizonBatch } from '../model/types'
 
 import { SectionInstances } from './section-instances'
 

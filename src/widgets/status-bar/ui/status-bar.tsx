@@ -12,43 +12,6 @@ const coordinateFormat = new Intl.NumberFormat('ru-RU', {
   maximumFractionDigits: 2,
   useGrouping: false
 })
-const countFormat = new Intl.NumberFormat('ru-RU')
-
-const RenderMetrics = observer(({ mineStore, viewerStore }: StatusBarProps) => {
-  const metrics = viewerStore.renderMetrics
-
-  return (
-    <Space aria-label='Метрики сцены' size={8} wrap>
-      <Tag
-        className={styles['status-tag']}
-        title='Треугольники, отрисованные за последний кадр, включая выделение и куб ориентации'
-      >
-        triangles:{' '}
-        <span className={styles['metric-value']}>
-          {metrics ? countFormat.format(metrics.triangles) : '—'}
-        </span>
-      </Tag>
-      <Tag
-        className={styles['status-tag']}
-        title='Общее количество узлов в загруженной схеме'
-      >
-        nodes:{' '}
-        <span className={styles['metric-value']}>
-          {countFormat.format(mineStore.mine?.nodes.size ?? 0)}
-        </span>
-      </Tag>
-      <Tag
-        className={styles['status-tag']}
-        title='Точечные примитивы Three.js, отрисованные за последний кадр'
-      >
-        points:{' '}
-        <span className={styles['metric-value']}>
-          {metrics ? countFormat.format(metrics.points) : '—'}
-        </span>
-      </Tag>
-    </Space>
-  )
-})
 
 const CameraPosition = observer(
   ({ viewerStore }: { viewerStore: ViewerStore }) => {
@@ -107,7 +70,7 @@ export const StatusBar = observer(
           Секции: {mineStore.mine?.sections.size ?? 0}
         </Tag>
       </Space>
-      <RenderMetrics mineStore={mineStore} viewerStore={viewerStore} />
+
       <CameraPosition viewerStore={viewerStore} />
     </Footer>
   )

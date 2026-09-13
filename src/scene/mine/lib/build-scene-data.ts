@@ -9,7 +9,9 @@ import {
 import type { Section } from '@/domain/section'
 import type { Position3D } from '@/shared/types/position-3d'
 
-import type { MineSceneData } from '../model/mine-scene-data'
+import type { MineSceneData } from '../model/types'
+
+import { getSceneOrigin } from './get-scene-origin'
 
 const SECTION_THICKNESS_SCALE = 0.25
 
@@ -106,13 +108,7 @@ export const getSelectedSections = (
 
 export const buildSceneData = (mine: Mine): MineSceneData => {
   const sourceBounds = getMineBounds(mine)
-  const origin = sourceBounds
-    ? {
-        x: (sourceBounds.min.x + sourceBounds.max.x) / 2,
-        y: (sourceBounds.min.y + sourceBounds.max.y) / 2,
-        z: (sourceBounds.min.z + sourceBounds.max.z) / 2
-      }
-    : { x: 0, y: 0, z: 0 }
+  const origin = getSceneOrigin(sourceBounds)
   const bounds = new Box3()
 
   // Сдвиг до записи в Float32 сохраняет точность больших исходных координат.

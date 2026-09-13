@@ -7,10 +7,6 @@ export class ViewerStore {
   selectedEntity: SelectedEntityRef | null = null
   focusRequest: { entity: SelectedEntityRef | null } | null = null
   cameraPosition: Position3D | null = null
-  renderMetrics: {
-    readonly triangles: number
-    readonly points: number
-  } | null = null
   cameraDirectionRequest: Position3D | null = null
   showGrid = false
   showOrientation = true
@@ -60,16 +56,6 @@ export class ViewerStore {
       return
 
     this.cameraPosition = position
-  }
-
-  setRenderMetrics(metrics: ViewerStore['renderMetrics']) {
-    if (
-      this.renderMetrics?.triangles === metrics?.triangles &&
-      this.renderMetrics?.points === metrics?.points
-    )
-      return
-
-    this.renderMetrics = metrics
   }
 
   isHorizonVisible(id: number) {
