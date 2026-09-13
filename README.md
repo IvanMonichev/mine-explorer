@@ -5,6 +5,11 @@ SPA-приложение для загрузки XML-схем шахт в фор
 по схеме. Реализовано в рамках тестового задания на модуль 3D-визуализации
 шахты.
 
+---
+
+Ссылка:
+[ivanmonichev.github.io/mine-explorer](https://ivanmonichev.github.io/mine-explorer/)
+
 ## Запуск
 
 Потребуются Node.js 24.x, npm и браузер с поддержкой WebGL 2. Для полноэкранного
