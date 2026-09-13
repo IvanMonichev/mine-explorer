@@ -7,6 +7,10 @@ export class ViewerStore {
   selectedEntity: SelectedEntityRef | null = null
   focusRequest: { entity: SelectedEntityRef | null } | null = null
   cameraPosition: Position3D | null = null
+  renderMetrics: {
+    readonly triangles: number
+    readonly points: number
+  } | null = null
   cameraDirectionRequest: Position3D | null = null
   showGrid = false
   showOrientation = true
@@ -20,6 +24,7 @@ export class ViewerStore {
         selectedEntity: observableRef,
         focusRequest: observableRef,
         cameraPosition: observableRef,
+        renderMetrics: observableRef,
         cameraDirectionRequest: observableRef
       },
       { autoBind: true }
@@ -57,6 +62,16 @@ export class ViewerStore {
     this.cameraPosition = position
   }
 
+  setRenderMetrics(metrics: ViewerStore['renderMetrics']) {
+    if (
+      this.renderMetrics?.triangles === metrics?.triangles &&
+      this.renderMetrics?.points === metrics?.points
+    )
+      return
+
+    this.renderMetrics = metrics
+  }
+
   isHorizonVisible(id: number) {
     return !this.hiddenHorizonIds.has(id)
   }
@@ -79,6 +94,7 @@ export class ViewerStore {
     this.selectedEntity = null
     this.focusRequest = null
     this.cameraPosition = null
+    this.renderMetrics = null
     this.cameraDirectionRequest = null
     this.hiddenHorizonIds.clear()
     this.hiddenExcavationIds.clear()

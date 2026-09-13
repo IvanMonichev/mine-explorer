@@ -87,7 +87,7 @@ const getSectionBounds = (
 export const getSelectedSections = (
   mine: Mine,
   selected: SelectedEntityRef | null
-): Section[] => {
+): readonly Section[] => {
   if (!selected) return []
 
   switch (selected.type) {

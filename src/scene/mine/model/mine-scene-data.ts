@@ -5,7 +5,7 @@ import type { Position3D } from '@/shared/types/position-3d'
 
 export interface HorizonBatch {
   horizonId: number
-  sections: Section[]
+  sections: readonly Section[]
   matrices: Float32Array
 }
 

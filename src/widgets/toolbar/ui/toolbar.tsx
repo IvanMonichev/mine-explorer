@@ -3,14 +3,11 @@ import {
   FolderOpenOutlined,
   QuestionCircleOutlined
 } from '@ant-design/icons'
-import { Button, Tooltip, Typography } from 'antd'
+import { Button, Tooltip } from 'antd'
 
 import styles from './toolbar.module.css'
 
-const { Text } = Typography
-
 interface ToolbarProps {
-  selectedFile: File | null
   isLoading: boolean
   canClear: boolean
   onOpenLoadModal: () => void
@@ -19,7 +16,6 @@ interface ToolbarProps {
 }
 
 export const Toolbar = ({
-  selectedFile,
   isLoading,
   canClear,
   onOpenLoadModal,

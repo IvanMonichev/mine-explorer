@@ -4,7 +4,7 @@ import { Alert, Layout, Splitter } from 'antd'
 import { runInAction } from 'mobx'
 import { observer } from 'mobx-react-lite'
 
-import defaultMineUrl from '@/assets/data/min-scheme-hUPL7S.xml?url'
+import defaultMineUrl from '@/assets/data/mim-scheme-hUPL7S.xml?url'
 import { loadMim } from '@/infrastructure/mim'
 import { MineScene } from '@/scene/mine'
 import { InfoLayout } from '@/shared/components/info-layout'
@@ -36,7 +36,6 @@ export const MineViewerPage = observer(() => {
   const [mineStore] = useState(() => new MineStore())
   const [viewerStore] = useState(() => new ViewerStore())
   const loadRequestId = useRef(0)
-  const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [isLoadModalOpen, setIsLoadModalOpen] = useState(false)
   const [isAboutModalOpen, setIsAboutModalOpen] = useState(false)
   const [sidebarWidth] = useState(readSidebarWidth)
@@ -60,7 +59,6 @@ export const MineViewerPage = observer(() => {
       mineStore.clear()
       viewerStore.clear()
     })
-    setSelectedFile(null)
   }
 
   const handleLoad = useCallback(
@@ -80,7 +78,6 @@ export const MineViewerPage = observer(() => {
           mineStore.setMine(mine)
           viewerStore.clear()
         })
-        setSelectedFile(file)
         console.log('Схема шахты:', mine)
       } catch (error) {
         if (requestId !== loadRequestId.current) return
@@ -134,7 +131,6 @@ export const MineViewerPage = observer(() => {
           setIsAboutModalOpen(true)
         }}
         onOpenLoadModal={openLoadModal}
-        selectedFile={selectedFile}
       />
 
       <section

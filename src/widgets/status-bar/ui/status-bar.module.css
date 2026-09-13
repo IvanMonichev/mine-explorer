@@ -47,6 +47,13 @@
   width: 6ch;
 }
 
+.metric-value {
+  display: inline-block;
+  min-width: 8ch;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
 .status-tag,
 .selected-tag {
   margin-inline-end: 0;

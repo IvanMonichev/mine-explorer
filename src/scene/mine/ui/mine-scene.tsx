@@ -14,6 +14,7 @@ import { MineCamera } from './mine-camera'
 import styles from './mine-scene.module.css'
 import { SceneErrorBoundary } from './scene-error-boundary'
 import { SceneHelpers } from './scene-helpers'
+import { SceneMetrics } from './scene-metrics'
 import { SelectionInstances } from './selection-instances'
 
 interface MineSceneProps {
@@ -64,6 +65,7 @@ export const MineScene = ({ mine, viewerStore }: MineSceneProps) => {
           />
           <MineCamera data={data} mine={mine} viewerStore={viewerStore} />
           <SceneHelpers data={data} viewerStore={viewerStore} />
+          <SceneMetrics viewerStore={viewerStore} />
         </Canvas>
       </div>
     </SceneErrorBoundary>
