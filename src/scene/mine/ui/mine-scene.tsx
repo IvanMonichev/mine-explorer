@@ -8,6 +8,13 @@ import { InfoLayout } from '@/shared/components/info-layout'
 import type { ViewerStore } from '@/store/viewer'
 
 import { buildSceneData } from '../lib/build-scene-data'
+import {
+  AMBIENT_LIGHT_INTENSITY,
+  DIRECTIONAL_LIGHT_SETTINGS,
+  MINE_SCENE_BACKGROUND_COLOR,
+  MINE_SCENE_CANVAS_SETTINGS,
+  SECTION_RADIAL_SEGMENTS
+} from '../model/mine-scene-config'
 
 import { HorizonInstances } from './horizon-instances'
 import { MineCamera } from './mine-camera'
@@ -24,7 +31,10 @@ interface MineSceneProps {
 
 export const MineScene = ({ mine, viewerStore }: MineSceneProps) => {
   const data = useMemo(() => buildSceneData(mine), [mine])
-  const geometry = useMemo(() => new CylinderGeometry(1, 1, 1, 8), [])
+  const geometry = useMemo(
+    () => new CylinderGeometry(1, 1, 1, SECTION_RADIAL_SEGMENTS),
+    []
+  )
 
   useEffect(() => () => geometry.dispose(), [geometry])
 
@@ -32,9 +42,8 @@ export const MineScene = ({ mine, viewerStore }: MineSceneProps) => {
     <SceneErrorBoundary>
       <div className={styles['mine-scene']}>
         <Canvas
+          {...MINE_SCENE_CANVAS_SETTINGS}
           aria-label='3D-схема шахты'
-          camera={{ position: [1, 0.7, 1], fov: 45 }}
-          dpr={[1, 2]}
           fallback={
             <InfoLayout
               conditions={[
@@ -42,13 +51,11 @@ export const MineScene = ({ mine, viewerStore }: MineSceneProps) => {
               ]}
             />
           }
-          frameloop='demand'
-          gl={{ antialias: true }}
           onPointerMissed={() => viewerStore.select(null)}
         >
-          <color args={['#f8fafc']} attach='background' />
-          <ambientLight intensity={0.8} />
-          <directionalLight intensity={1.5} position={[1, 2, 3]} />
+          <color args={[MINE_SCENE_BACKGROUND_COLOR]} attach='background' />
+          <ambientLight intensity={AMBIENT_LIGHT_INTENSITY} />
+          <directionalLight {...DIRECTIONAL_LIGHT_SETTINGS} />
           {data.batches.map((batch) => (
             <HorizonInstances
               batch={batch}
