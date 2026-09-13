@@ -20,7 +20,6 @@ export class ViewerStore {
         selectedEntity: observableRef,
         focusRequest: observableRef,
         cameraPosition: observableRef,
-        renderMetrics: observableRef,
         cameraDirectionRequest: observableRef
       },
       { autoBind: true }
@@ -80,7 +79,6 @@ export class ViewerStore {
     this.selectedEntity = null
     this.focusRequest = null
     this.cameraPosition = null
-    this.renderMetrics = null
     this.cameraDirectionRequest = null
     this.hiddenHorizonIds.clear()
     this.hiddenExcavationIds.clear()
