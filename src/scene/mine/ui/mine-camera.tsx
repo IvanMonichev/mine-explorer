@@ -10,6 +10,7 @@ import type { Mine } from '@/domain/mine'
 import type { ViewerStore } from '@/store/viewer'
 
 import { getFocusBounds } from '../lib/build-scene-data'
+import { CAMERA_POSITION_UPDATE_INTERVAL_MS } from '../model/mine-scene-config'
 import type { MineSceneData } from '../model/mine-scene-data'
 
 interface MineCameraProps {
@@ -31,6 +32,10 @@ export const MineCamera = observer(
   ({ mine, data, viewerStore }: MineCameraProps) => {
     const controlsRef = useRef<ComponentRef<typeof OrbitControls>>(null)
     const flightRef = useRef<CameraFlight | null>(null)
+    const lastPositionUpdateRef = useRef(-Infinity)
+    const positionTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+      null
+    )
     const lastFitRef = useRef<{
       data: MineSceneData
       focusRequest: ViewerStore['focusRequest']
@@ -42,6 +47,16 @@ export const MineCamera = observer(
       data.bounds.getSize(new Vector3()).length() / 2,
       1
     )
+
+    const publishCameraPosition = useCallback(() => {
+      positionTimeoutRef.current = null
+      lastPositionUpdateRef.current = performance.now()
+      viewerStore.setCameraPosition({
+        x: camera.position.x,
+        y: camera.position.y,
+        z: camera.position.z
+      })
+    }, [camera, viewerStore])
 
     const startFlight = useCallback(
       (position: Vector3, target: Vector3, orbit?: CameraFlight['orbit']) => {
@@ -74,9 +89,14 @@ export const MineCamera = observer(
     useEffect(
       () => () => {
         flightRef.current = null
+        if (positionTimeoutRef.current !== null) {
+          clearTimeout(positionTimeoutRef.current)
+          positionTimeoutRef.current = null
+        }
+        lastPositionUpdateRef.current = -Infinity
         viewerStore.setCameraPosition(null)
       },
-      [viewerStore]
+      [publishCameraPosition, viewerStore]
     )
 
     useEffect(() => {
@@ -208,12 +228,20 @@ export const MineCamera = observer(
         invalidate()
       }
 
+      if (positionTimeoutRef.current === null) {
+        const delay =
+          CAMERA_POSITION_UPDATE_INTERVAL_MS -
+          (performance.now() - lastPositionUpdateRef.current)
+
+        if (delay <= 0) {
+          publishCameraPosition()
+        } else {
+          // Передаём конечную позицию, даже если рендеринг по запросу уже остановился.
+          positionTimeoutRef.current = setTimeout(publishCameraPosition, delay)
+        }
+      }
+
       const distance = camera.position.distanceTo(controls.target)
-      viewerStore.setCameraPosition({
-        x: camera.position.x,
-        y: camera.position.y,
-        z: camera.position.z
-      })
       const near = Math.max(
         Math.min(distance / 1000, sceneRadius / 1000),
         0.001

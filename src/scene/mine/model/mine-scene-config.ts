@@ -17,3 +17,5 @@ export const DIRECTIONAL_LIGHT_SETTINGS = {
 } satisfies ThreeElements['directionalLight']
 
 export const SECTION_RADIAL_SEGMENTS = 8
+
+export const CAMERA_POSITION_UPDATE_INTERVAL_MS = 100
