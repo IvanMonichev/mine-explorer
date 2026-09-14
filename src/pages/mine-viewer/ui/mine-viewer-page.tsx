@@ -183,9 +183,10 @@ export const MineViewerPage = observer(() => {
                 {fullscreenError && (
                   <Alert showIcon title={fullscreenError} type='error' />
                 )}
-                {mineStore.isLoading ? (
-                  <LoadLayout message='Загрузка схемы…' />
-                ) : (
+                <LoadLayout
+                  isLoading={mineStore.isLoading}
+                  message='Загрузка схемы…'
+                >
                   <InfoLayout
                     conditions={[
                       {
@@ -205,7 +206,7 @@ export const MineViewerPage = observer(() => {
                       />
                     )}
                   </InfoLayout>
-                )}
+                </LoadLayout>
               </Viewport>
             </Content>
           </Splitter.Panel>

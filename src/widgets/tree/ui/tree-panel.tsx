@@ -183,9 +183,7 @@ export const TreePanel = observer(
             type='error'
           />
         )}
-        {mineStore.isLoading ? (
-          <LoadLayout message='Загрузка схемы…' />
-        ) : (
+        <LoadLayout isLoading={mineStore.isLoading} message='Загрузка схемы…'>
           <InfoLayout
             conditions={[
               {
@@ -208,7 +206,7 @@ export const TreePanel = observer(
               />
             )}
           </InfoLayout>
-        )}
+        </LoadLayout>
       </Panel>
     )
   }
