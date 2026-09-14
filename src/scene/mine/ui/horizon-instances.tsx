@@ -2,7 +2,7 @@ import { observer } from 'mobx-react-lite'
 import type { CylinderGeometry } from 'three'
 
 import { getCategoryColor } from '@/shared/utils/get-category-color'
-import type { ViewerStore } from '@/store/viewer'
+import { useRootStore } from '@/store/root'
 
 import type { HorizonBatch } from '../model/types'
 
@@ -11,33 +11,26 @@ import { SectionInstances } from './section-instances'
 interface HorizonInstancesProps {
   batch: HorizonBatch
   geometry: CylinderGeometry
-  viewerStore: ViewerStore
 }
 
-const HorizonMaterial = observer(
-  ({
-    horizonId,
-    viewerStore
-  }: {
-    horizonId: number
-    viewerStore: ViewerStore
-  }) => {
-    const hasSelection = viewerStore.selectedEntity !== null
+const HorizonMaterial = observer(({ horizonId }: { horizonId: number }) => {
+  const { viewerStore } = useRootStore()
+  const hasSelection = viewerStore.selectedEntity !== null
 
-    return (
-      <meshLambertMaterial
-        color={getCategoryColor(horizonId)}
-        depthWrite={!hasSelection}
-        opacity={hasSelection ? 0.25 : 1}
-        toneMapped={false}
-        transparent={hasSelection}
-      />
-    )
-  }
-)
+  return (
+    <meshLambertMaterial
+      color={getCategoryColor(horizonId)}
+      depthWrite={!hasSelection}
+      opacity={hasSelection ? 0.25 : 1}
+      toneMapped={false}
+      transparent={hasSelection}
+    />
+  )
+})
 
 export const HorizonInstances = observer(
-  ({ batch, geometry, viewerStore }: HorizonInstancesProps) => {
+  ({ batch, geometry }: HorizonInstancesProps) => {
+    const { viewerStore } = useRootStore()
     const visibleIndices = batch.sections.flatMap((section, index) =>
       viewerStore.isExcavationVisible(section.excavationId, batch.horizonId)
         ? [index]
@@ -56,10 +49,7 @@ export const HorizonInstances = observer(
           })
         }}
       >
-        <HorizonMaterial
-          horizonId={batch.horizonId}
-          viewerStore={viewerStore}
-        />
+        <HorizonMaterial horizonId={batch.horizonId} />
       </SectionInstances>
     )
   }

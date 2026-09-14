@@ -3,7 +3,7 @@ import type { CylinderGeometry } from 'three'
 
 import type { Mine } from '@/domain/mine'
 import type { Position3D } from '@/shared/types/position-3d'
-import type { ViewerStore } from '@/store/viewer'
+import { useRootStore } from '@/store/root'
 
 import {
   buildSectionMatrices,
@@ -16,11 +16,11 @@ interface SelectionInstancesProps {
   geometry: CylinderGeometry
   mine: Mine
   origin: Position3D
-  viewerStore: ViewerStore
 }
 
 export const SelectionInstances = observer(
-  ({ geometry, mine, origin, viewerStore }: SelectionInstancesProps) => {
+  ({ geometry, mine, origin }: SelectionInstancesProps) => {
+    const { viewerStore } = useRootStore()
     const sections = getSelectedSections(
       mine,
       viewerStore.selectedEntity

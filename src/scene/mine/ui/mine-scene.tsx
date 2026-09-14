@@ -1,11 +1,11 @@
 import { useEffect, useMemo } from 'react'
 
 import { Canvas } from '@react-three/fiber'
+import { observer } from 'mobx-react-lite'
 import { CylinderGeometry } from 'three'
 
-import type { Mine } from '@/domain/mine'
 import { InfoLayout } from '@/shared/components/info-layout'
-import type { ViewerStore } from '@/store/viewer'
+import { useRootStore } from '@/store/root'
 
 import { buildSceneData } from '../lib/build-scene-data'
 import {
@@ -23,13 +23,10 @@ import { SceneErrorBoundary } from './scene-error-boundary'
 import { SceneHelpers } from './scene-helpers'
 import { SelectionInstances } from './selection-instances'
 
-interface MineSceneProps {
-  mine: Mine
-  viewerStore: ViewerStore
-}
-
-export const MineScene = ({ mine, viewerStore }: MineSceneProps) => {
-  const data = useMemo(() => buildSceneData(mine), [mine])
+export const MineScene = observer(() => {
+  const { mineStore, viewerStore } = useRootStore()
+  const mine = mineStore.mine
+  const data = useMemo(() => (mine ? buildSceneData(mine) : null), [mine])
   const geometry = useMemo(
     () => new CylinderGeometry(1, 1, 1, SECTION_RADIAL_SEGMENTS),
     []
@@ -37,6 +34,8 @@ export const MineScene = ({ mine, viewerStore }: MineSceneProps) => {
 
   // Освобождаем ресурсы общей геометрии секций при её замене или удалении сцены.
   useEffect(() => () => geometry.dispose(), [geometry])
+
+  if (!mine || !data) return null
 
   return (
     <SceneErrorBoundary>
@@ -68,19 +67,17 @@ export const MineScene = ({ mine, viewerStore }: MineSceneProps) => {
               batch={batch}
               geometry={geometry}
               key={batch.horizonId}
-              viewerStore={viewerStore}
             />
           ))}
           <SelectionInstances
             geometry={geometry}
             mine={mine}
             origin={data.origin}
-            viewerStore={viewerStore}
           />
-          <MineCamera data={data} mine={mine} viewerStore={viewerStore} />
-          <SceneHelpers data={data} viewerStore={viewerStore} />
+          <MineCamera data={data} mine={mine} />
+          <SceneHelpers data={data} />
         </Canvas>
       </div>
     </SceneErrorBoundary>
   )
-}
+})

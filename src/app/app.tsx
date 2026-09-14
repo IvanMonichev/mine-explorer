@@ -5,9 +5,12 @@ import '@/assets/styles/index.css'
 import { MineViewerPage } from '@/pages/mine-viewer'
 
 import { appTheme } from './config/theme'
+import { StoreProvider } from './providers/store-provider'
 
 export const App = () => (
   <ConfigProvider locale={ruRU} theme={appTheme}>
-    <MineViewerPage />
+    <StoreProvider>
+      <MineViewerPage />
+    </StoreProvider>
   </ConfigProvider>
 )

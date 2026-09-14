@@ -9,8 +9,7 @@ import { loadMim } from '@/infrastructure/mim'
 import { MineScene } from '@/scene/mine'
 import { InfoLayout } from '@/shared/components/info-layout'
 import { LoadLayout } from '@/shared/components/load-layout'
-import { MineStore } from '@/store/mine'
-import { ViewerStore } from '@/store/viewer'
+import { useRootStore } from '@/store/root'
 import { AboutModal } from '@/widgets/about'
 import { LoadModal } from '@/widgets/load'
 import { SelectionPanel } from '@/widgets/selection'
@@ -33,14 +32,11 @@ import styles from './mine-viewer-page.module.css'
 const { Content } = Layout
 
 export const MineViewerPage = observer(() => {
-  const [mineStore] = useState(() => new MineStore())
-  const [viewerStore] = useState(() => new ViewerStore())
+  const { mineStore, viewerStore } = useRootStore()
   const loadRequestId = useRef(0)
   const [isLoadModalOpen, setIsLoadModalOpen] = useState(false)
   const [isAboutModalOpen, setIsAboutModalOpen] = useState(false)
   const [sidebarWidth] = useState(readSidebarWidth)
-  const canRenderMine =
-    Boolean(mineStore.mine?.sections.size) && !mineStore.isLoading
   const {
     viewerRef,
     isFullscreen,
@@ -124,10 +120,6 @@ export const MineViewerPage = observer(() => {
   return (
     <Layout className={styles['viewer-layout']}>
       <Toolbar
-        canClear={Boolean(
-          mineStore.mine || mineStore.error || mineStore.isLoading
-        )}
-        isLoading={mineStore.isLoading}
         onClear={handleClear}
         onOpenAboutModal={() => {
           setIsAboutModalOpen(true)
@@ -153,7 +145,7 @@ export const MineViewerPage = observer(() => {
             min={MIN_SIDEBAR_WIDTH}
           >
             <aside className={styles['viewer-sidebar-content']}>
-              <TreePanel mineStore={mineStore} viewerStore={viewerStore} />
+              <TreePanel />
             </aside>
           </Splitter.Panel>
 
@@ -165,22 +157,12 @@ export const MineViewerPage = observer(() => {
                     isFullscreen={isFullscreen}
                     isFullscreenSupported={isFullscreenSupported}
                     isPending={isFullscreenPending}
-                    mineStore={mineStore}
-                    onFitMine={
-                      canRenderMine
-                        ? () => viewerStore.requestFocus(null)
-                        : undefined
-                    }
                     onToggleFullscreen={toggleFullscreen}
-                    viewerStore={viewerStore}
                   />
                 }
               >
                 <div className={styles['viewer-selection']}>
-                  <SelectionPanel
-                    mineStore={mineStore}
-                    viewerStore={viewerStore}
-                  />
+                  <SelectionPanel />
                 </div>
                 {fullscreenError && (
                   <Alert showIcon title={fullscreenError} type='error' />
@@ -201,12 +183,7 @@ export const MineViewerPage = observer(() => {
                       }
                     ]}
                   >
-                    {mineStore.mine && (
-                      <MineScene
-                        mine={mineStore.mine}
-                        viewerStore={viewerStore}
-                      />
-                    )}
+                    <MineScene />
                   </InfoLayout>
                 </LoadLayout>
               </Viewport>
@@ -215,7 +192,7 @@ export const MineViewerPage = observer(() => {
         </Splitter>
       </section>
 
-      <StatusBar mineStore={mineStore} viewerStore={viewerStore} />
+      <StatusBar />
 
       <AboutModal
         onCancel={() => {

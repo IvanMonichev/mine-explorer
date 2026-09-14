@@ -1,8 +1,7 @@
 import { Layout, Space, Tag } from 'antd'
 import { observer } from 'mobx-react-lite'
 
-import type { MineStore } from '@/store/mine'
-import type { ViewerStore } from '@/store/viewer'
+import { useRootStore } from '@/store/root'
 
 import styles from './status-bar.module.css'
 
@@ -13,38 +12,34 @@ const coordinateFormat = new Intl.NumberFormat('ru-RU', {
   useGrouping: false
 })
 
-const CameraPosition = observer(
-  ({ viewerStore }: { viewerStore: ViewerStore }) => {
-    const position = viewerStore.cameraPosition
+const CameraPosition = observer(() => {
+  const { viewerStore } = useRootStore()
+  const position = viewerStore.cameraPosition
 
-    return (
-      <table
-        className={styles['camera-position']}
-        title='Позиция камеры в координатах 3D-сцены'
-      >
-        <tbody>
-          <tr>
-            <th scope='row'>Камера:</th>
-            <td className={styles['camera-axis']}>X:</td>
-            <td>{position ? coordinateFormat.format(position.x) : '—'}</td>
-            <td className={styles['camera-axis']}>Y:</td>
-            <td>{position ? coordinateFormat.format(position.y) : '—'}</td>
-            <td className={styles['camera-axis']}>Z:</td>
-            <td>{position ? coordinateFormat.format(position.z) : '—'}</td>
-          </tr>
-        </tbody>
-      </table>
-    )
-  }
-)
+  return (
+    <table
+      className={styles['camera-position']}
+      title='Позиция камеры в координатах 3D-сцены'
+    >
+      <tbody>
+        <tr>
+          <th scope='row'>Камера:</th>
+          <td className={styles['camera-axis']}>X:</td>
+          <td>{position ? coordinateFormat.format(position.x) : '—'}</td>
+          <td className={styles['camera-axis']}>Y:</td>
+          <td>{position ? coordinateFormat.format(position.y) : '—'}</td>
+          <td className={styles['camera-axis']}>Z:</td>
+          <td>{position ? coordinateFormat.format(position.z) : '—'}</td>
+        </tr>
+      </tbody>
+    </table>
+  )
+})
 
-interface StatusBarProps {
-  mineStore: MineStore
-  viewerStore: ViewerStore
-}
+export const StatusBar = observer(() => {
+  const { mineStore } = useRootStore()
 
-export const StatusBar = observer(
-  ({ mineStore, viewerStore }: StatusBarProps) => (
+  return (
     <Footer className={styles['status-bar']}>
       <Space aria-label='Статистика шахты' role='status' size={8} wrap>
         <Tag
@@ -71,7 +66,7 @@ export const StatusBar = observer(
         </Tag>
       </Space>
 
-      <CameraPosition viewerStore={viewerStore} />
+      <CameraPosition />
     </Footer>
   )
-)
+})

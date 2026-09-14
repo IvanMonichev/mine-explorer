@@ -10,31 +10,27 @@ import {
 import { Button, ConfigProvider, Tooltip } from 'antd'
 import { observer } from 'mobx-react-lite'
 
-import type { MineStore } from '@/store/mine'
-import type { ViewerStore } from '@/store/viewer'
+import { useRootStore } from '@/store/root'
 
 import styles from './viewport-toolbar.module.css'
 
 interface ViewportToolbarProps {
-  mineStore: MineStore
-  viewerStore: ViewerStore
   isFullscreen: boolean
   isPending: boolean
   isFullscreenSupported: boolean
   onToggleFullscreen: () => void
-  onFitMine?: () => void
 }
 
 export const ViewportToolbar = observer(
   ({
-    mineStore,
-    viewerStore,
     isFullscreen,
     isPending,
     isFullscreenSupported,
-    onToggleFullscreen,
-    onFitMine
+    onToggleFullscreen
   }: ViewportToolbarProps) => {
+    const { mineStore, viewerStore } = useRootStore()
+    const canRenderMine =
+      Boolean(mineStore.mine?.sections.size) && !mineStore.isLoading
     const fullscreenLabel = isFullscreen
       ? 'Выйти из полноэкранного режима'
       : 'На весь экран'
@@ -62,7 +58,7 @@ export const ViewportToolbar = observer(
               <Button
                 aria-label='Сфокусировать камеру на объекте'
                 className={styles['focus-button']}
-                disabled={!onFitMine || !selectedEntity?.sectionIds.length}
+                disabled={!canRenderMine || !selectedEntity?.sectionIds.length}
                 icon={<AimOutlined aria-hidden />}
                 onClick={() => viewerStore.requestFocus(selected)}
                 size='small'
@@ -80,7 +76,7 @@ export const ViewportToolbar = observer(
             <Button
               aria-label='Сетка'
               aria-pressed={viewerStore.showGrid}
-              disabled={!onFitMine}
+              disabled={!canRenderMine}
               icon={<TableOutlined aria-hidden />}
               onClick={viewerStore.toggleGrid}
               size='small'
@@ -97,7 +93,7 @@ export const ViewportToolbar = observer(
             <Button
               aria-label='Куб ориентации'
               aria-pressed={viewerStore.showOrientation}
-              disabled={!onFitMine}
+              disabled={!canRenderMine}
               icon={<CompassOutlined aria-hidden />}
               onClick={viewerStore.toggleOrientation}
               size='small'
@@ -114,9 +110,9 @@ export const ViewportToolbar = observer(
           <span>
             <Button
               aria-label='Показать всю схему'
-              disabled={!onFitMine}
+              disabled={!canRenderMine}
               icon={<ExpandOutlined aria-hidden />}
-              onClick={onFitMine}
+              onClick={() => viewerStore.requestFocus(null)}
               size='small'
               type='text'
             />
