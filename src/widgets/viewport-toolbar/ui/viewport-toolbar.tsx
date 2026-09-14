@@ -4,6 +4,7 @@ import {
   ExpandOutlined,
   FullscreenExitOutlined,
   FullscreenOutlined,
+  QuestionCircleOutlined,
   TableOutlined
 } from '@ant-design/icons'
 import { Button, ConfigProvider, Tooltip } from 'antd'
@@ -148,6 +149,36 @@ export const ViewportToolbar = observer(
               type='text'
             />
           </span>
+        </Tooltip>
+        <Tooltip
+          getPopupContainer={(trigger) => trigger.parentElement ?? trigger}
+          placement='bottomLeft'
+          title={
+            <>
+              W: вперёд
+              <br />
+              S: назад
+              <br />
+              A: влево
+              <br />
+              D: вправо
+              <br />
+              Q: вниз
+              <br />
+              E: вверх
+              <br />
+              Shift + клавиша движения: ускорение
+              <br />
+              ЛКМ + движение мыши: поворот камеры
+            </>
+          }
+        >
+          <Button
+            aria-label='Управление камерой'
+            icon={<QuestionCircleOutlined aria-hidden />}
+            size='small'
+            type='text'
+          />
         </Tooltip>
       </div>
     )

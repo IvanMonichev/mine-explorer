@@ -50,6 +50,13 @@ export const MineScene = ({ mine, viewerStore }: MineSceneProps) => {
               ]}
             />
           }
+          onCreated={({ gl }) => {
+            gl.domElement.tabIndex = 0
+            gl.domElement.setAttribute(
+              'aria-label',
+              '3D-схема шахты. WASD — движение, Q/E — вниз/вверх, Shift — ускорение'
+            )
+          }}
           onPointerMissed={() => viewerStore.select(null)}
         >
           <color args={[MINE_SCENE_BACKGROUND_COLOR]} attach='background' />

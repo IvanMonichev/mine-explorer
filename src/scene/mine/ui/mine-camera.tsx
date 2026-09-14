@@ -10,8 +10,14 @@ import type { Mine } from '@/domain/mine'
 import type { ViewerStore } from '@/store/viewer'
 
 import { getFocusBounds } from '../lib/build-scene-data'
-import { CAMERA_POSITION_UPDATE_INTERVAL_MS } from '../model/constants'
+import {
+  CAMERA_MOVEMENT_BOOST,
+  CAMERA_MOVEMENT_MAX_DELTA,
+  CAMERA_MOVEMENT_SPEED_FACTOR,
+  CAMERA_POSITION_UPDATE_INTERVAL_MS
+} from '../model/constants'
 import type { MineSceneData } from '../model/types'
+import { useCameraKeyboard } from '../model/use-camera-keyboard'
 
 interface MineCameraProps {
   mine: Mine
@@ -32,6 +38,11 @@ export const MineCamera = observer(
   ({ mine, data, viewerStore }: MineCameraProps) => {
     const controlsRef = useRef<ComponentRef<typeof OrbitControls>>(null)
     const flightRef = useRef<CameraFlight | null>(null)
+    const movementRef = useRef({
+      forward: new Vector3(),
+      right: new Vector3(),
+      offset: new Vector3()
+    })
     const lastPositionUpdateRef = useRef(-Infinity)
     const positionTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
       null
@@ -47,6 +58,22 @@ export const MineCamera = observer(
       data.bounds.getSize(new Vector3()).length() / 2,
       1
     )
+
+    const interruptFlight = useCallback(() => {
+      const controls = controlsRef.current
+      if (!controls) return
+
+      flightRef.current = null
+      const position = camera.position.clone()
+      const target = controls.target.clone()
+      controls.enableDamping = false
+      controls.update()
+      camera.position.copy(position)
+      controls.target.copy(target)
+      controls.update()
+      controls.enableDamping = true
+    }, [camera])
+    const pressedKeys = useCameraKeyboard(interruptFlight)
 
     const publishCameraPosition = useCallback(() => {
       positionTimeoutRef.current = null
@@ -190,9 +217,37 @@ export const MineCamera = observer(
       })
     }, [camera, directionRequest, startFlight])
 
-    useFrame(() => {
+    useFrame((_, delta) => {
       const controls = controlsRef.current
       if (!(camera instanceof PerspectiveCamera) || !controls) return
+
+      const keys = pressedKeys.current
+      const forwardInput = Number(keys.has('KeyW')) - Number(keys.has('KeyS'))
+      const rightInput = Number(keys.has('KeyD')) - Number(keys.has('KeyA'))
+      const upInput = Number(keys.has('KeyE')) - Number(keys.has('KeyQ'))
+      if (forwardInput || rightInput || upInput) {
+        flightRef.current = null
+        controls.enableDamping = true
+        const { forward, right, offset } = movementRef.current
+        camera.getWorldDirection(forward)
+        right.setFromMatrixColumn(camera.matrixWorld, 0)
+        offset.copy(forward).multiplyScalar(forwardInput)
+        offset.addScaledVector(right, rightInput)
+        offset.y += upInput
+        const boost = keys.has('Shift') ? CAMERA_MOVEMENT_BOOST : 1
+        offset
+          .normalize()
+          .multiplyScalar(
+            sceneRadius *
+              CAMERA_MOVEMENT_SPEED_FACTOR *
+              boost *
+              Math.min(delta, CAMERA_MOVEMENT_MAX_DELTA)
+          )
+        camera.position.add(offset)
+        controls.target.add(offset)
+        controls.update()
+        invalidate()
+      }
 
       const flight = flightRef.current
       if (flight) {
