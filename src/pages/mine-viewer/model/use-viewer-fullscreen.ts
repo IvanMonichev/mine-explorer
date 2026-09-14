@@ -6,6 +6,7 @@ export const useViewerFullscreen = () => {
   const [isPending, setIsPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  // Синхронизируем состояние с полноэкранным режимом браузера, включая выход по Esc.
   useEffect(() => {
     const handleFullscreenChange = () => {
       setIsFullscreen(document.fullscreenElement === viewerRef.current)

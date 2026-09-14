@@ -35,6 +35,7 @@ export const MineScene = ({ mine, viewerStore }: MineSceneProps) => {
     []
   )
 
+  // Освобождаем ресурсы общей геометрии секций при её замене или удалении сцены.
   useEffect(() => () => geometry.dispose(), [geometry])
 
   return (

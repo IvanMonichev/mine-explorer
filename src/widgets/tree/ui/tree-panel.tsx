@@ -47,6 +47,8 @@ const MineTree = observer(
     )
     const selected = viewerStore.selectedEntity
 
+    // Подстраиваем высоту виртуализированного дерева под контейнер
+    // и отключаем наблюдение за размером при удалении компонента.
     useEffect(() => {
       const container = containerRef.current
       if (!container) return
@@ -59,6 +61,8 @@ const MineTree = observer(
       return () => resizeObserver.disconnect()
     }, [])
 
+    // Один раз прокручиваем дерево к центру выбранного узла, когда он доступен
+    // с учётом фильтра, раскрытых горизонтов и высоты контейнера.
     useEffect(() => {
       if (!selected) {
         anchoredSelectionRef.current = null
@@ -131,6 +135,8 @@ export const TreePanel = observer(
     const mine = mineStore.mine
     const selected = viewerStore.selectedEntity
 
+    // Показываем выбранную выработку в дереве: раскрываем её горизонт
+    // и сбрасываем поиск, если он скрывает выбранный узел.
     useEffect(() => {
       if (!mine || selected?.type !== 'excavation') return
 

@@ -113,6 +113,8 @@ export const MineCamera = observer(
       [camera, invalidate]
     )
 
+    // При очистке останавливаем перелёт, отменяем отложенное обновление координат
+    // и сбрасываем сохранённую позицию камеры.
     useEffect(
       () => () => {
         flightRef.current = null
@@ -126,6 +128,8 @@ export const MineCamera = observer(
       [publishCameraPosition, viewerStore]
     )
 
+    // Вписываем шахту или запрошенный объект в кадр при изменении сцены и её размеров.
+    // Новый запрос фокусировки в той же сцене выполняем с плавным перелётом.
     useEffect(() => {
       const controls = controlsRef.current
       if (!(camera instanceof PerspectiveCamera) || !controls) return
@@ -184,6 +188,8 @@ export const MineCamera = observer(
       startFlight
     ])
 
+    // По запросу направления плавно поворачиваем камеру вокруг текущей цели,
+    // сохраняя расстояние до неё и выбирая кратчайший поворот по азимуту.
     useEffect(() => {
       const controls = controlsRef.current
       if (!directionRequest || !controls) return

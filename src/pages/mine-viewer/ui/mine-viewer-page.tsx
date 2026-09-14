@@ -93,6 +93,8 @@ export const MineViewerPage = observer(() => {
     [mineStore, viewerStore]
   )
 
+  // Загружаем начальную схему при открытии страницы; при очистке отменяем запрос
+  // и помечаем его результат устаревшим, чтобы он не обновил хранилище.
   useEffect(() => {
     const controller = new AbortController()
 

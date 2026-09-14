@@ -9,6 +9,8 @@ export const useCameraKeyboard = (onMoveStart: () => void) => {
   const pressedKeys = useRef(new Set<string>())
   const { gl, invalidate } = useThree()
 
+  // Подключаем управление камерой с клавиатуры, пока сцена в фокусе.
+  // Сбрасываем зажатые клавиши при потере фокуса и удаляем обработчики при очистке.
   useEffect(() => {
     const canvas = gl.domElement
     const keys = pressedKeys.current
